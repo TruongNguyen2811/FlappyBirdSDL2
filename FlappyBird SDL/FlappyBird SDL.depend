@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1619617478 source:c:\users\admin\desktop\flappybird sdl\main.cpp
+	<iostream>
+	<SDL.h>
+	"SDL_utils.h"
+	<cmath>
+	<cstdlib>
+
+1618806655 c:\users\admin\desktop\flappybird sdl\sdl_utils.h
+	<iostream>
+	<SDL.h>
+
+1618807262 source:c:\users\admin\desktop\flappybird sdl\sdl_utils.cpp
+	"SDL_utils.h"
+
