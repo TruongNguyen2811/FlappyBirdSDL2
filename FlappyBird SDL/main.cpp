@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SDL.h>
 #include "SDL_utils.h"
-//#include <vector>
 #include <cmath>
 #include <cstdlib>
 using namespace std;
@@ -11,36 +10,30 @@ const int SCREEN_WIDTH = 1300;
 const int SCREEN_HEIGHT = 750;
 const char WINDOW_TITLE[] = "Flappy Bird";
 bool running=true;
-bool menu=true;
-int tuk=0,score=0,t=0,bt=0,birdx=450,birdy=250,r,e,z,f=0,g=10;
+int tuk=0,score=0,t=0,bt=0,birdx=450,birdy=250,check=0,r,e,z;
 int x[1300];
 int n[1300];
-int m[1345][710];
 SDL_Window* window;
 SDL_Renderer* renderer;
 void game();
-void pipes();
 bool gameover();
 void checkscore();
-//void help();
-//void EndGameScreen();
-void play();
-bool quit();
+void EndGameScreen();
+void pipes();
 void pipes3();
 void pipes2();
+SDL_Texture *background ;
 
 int main(int argc, char* argv[])
 {
     initSDL(window, renderer, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     SDL_Texture *MenuScreen = loadTexture("MenuScreen.bmp", renderer);
-    //SDL_Texture *bird = loadTexture("bird2.bmp", renderer);
     bool menu= true;
     SDL_Event e;
     while (menu)
     {
         SDL_Delay(200);
         renderTexture(MenuScreen, renderer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-        //renderTexture(bird, renderer,birdx, birdy, 70, 50);
         SDL_RenderPresent(renderer);
 
         while (SDL_PollEvent(&e)) {
@@ -71,36 +64,21 @@ int main(int argc, char* argv[])
             }
         }
     }
-    if(menu==false&&running==false)
-    {
-        SDL_DestroyTexture(MenuScreen);
-         quitSDL(window, renderer);
-    }
-    if(menu==false&&running==true)
-    {
-        SDL_DestroyTexture(MenuScreen);
-        quitSDL(window, renderer);
-        game();
-    }
+    SDL_DestroyTexture(MenuScreen);
+    quitSDL(window, renderer);
+    if (running==true) game();
     return 0;
 }
 void game()
 {
-    int g=10;
+    int g=50;
     for(int i=0;i<=1300;i++)
     {
         n[i]=0;
         x[i]=i;
     }
-    for(int i=0;i<=1345;i++)
-    {
-        for(int k=0;k<=710;k++)
-        {
-            m[i][k]=0;
-        }
-    }
     initSDL(window, renderer, SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-    SDL_Texture *background = loadTexture("Background2.bmp", renderer);
+    SDL_Texture *background = loadTexture("BackgroundNight2.bmp", renderer);
     SDL_Texture *ground= loadTexture("ground 2.bmp", renderer);
     if (background == nullptr||ground==nullptr){
         SDL_DestroyTexture(background);
@@ -111,7 +89,7 @@ void game()
     SDL_Event e;
     while(running)
     {
-    SDL_Delay(90);
+    SDL_Delay(40);
     t++;
     renderTexture(background, renderer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     renderTexture(ground, renderer,-20, 710, 1340, 40);
@@ -121,6 +99,7 @@ void game()
     renderTexture(bird, renderer,birdx, birdy, 70, 50);
     SDL_RenderPresent(renderer);
     gameover();
+    checkscore();
     tuk=0;
 
 
@@ -138,23 +117,29 @@ void game()
                 break;
             }
         }
-      if(tuk>0)
+      /*if(tuk>0)
       {
           bt=0;
-          birdy=birdy-g/2*tuk*20;
+          birdy=birdy-g/2*tuk*15;
       }
       else
       {
          bt++;
-         birdy=birdy+25*bt;
+         birdy=birdy+15*bt;
       }
-    }
+    }*/
+        if(tuk>0) {bt = -80.0f;}
+        else {bt = bt + g*0.4f;}
+    birdy = birdy + bt*0.4f;
+}
     quitSDL(window, renderer);
+    EndGameScreen();
+
 }
 void pipes()
 {
 
-    int i,k;
+    int i;
     SDL_Texture *pipeUp = loadTexture("pipe up.bmp", renderer);
     SDL_Texture *pipeDown= loadTexture("pipe down.bmp", renderer);
     if(t==1)
@@ -182,50 +167,30 @@ void pipes()
         }
 
     }
-        for(i=0;i<=1300;i++)
-        {if(n[460]==2||n[490]==2||n[475]==2||n[520]==2)
+    }
+        if(n[475]==2||n[400]==2||n[445]==2)
         {
+            if(birdy<=r||(birdy+50)>=(r+250))
+            {
+                check=1;
+                gameover();
+            }
+            else
+                check=0;
 
-                for(k=0;k<=710;k++)
-                {
-                    if(k<=r||k>=r+250)
-                        m[490][k]=2;
-                        m[460][k]=2;
-                        m[520][k]=2;                }
         }
-        else
-                 for(k=0;k<=710;k++)
-                {
-                    if(k<=r||k>=r+250)
-                        m[490][k]=0;
-                        m[460][k]=0;
-                        m[520][k]=0;
-                }
-        }
-
-    for(i=-5;i<=1300;i++)
-    {
-        if(n[10]==2)
+      if(n[10]==2)
         {
             n[10]=0;
             t=0;
             SDL_DestroyTexture(pipeUp);
             SDL_DestroyTexture(pipeDown);
-            //SDL_RenderClear(renderer);
-            break;
         }
-        else break;
-
-    }
-
-
-}
 }
 
 void pipes2()
 {
-    int i,k;
-      //r=(rand()%375);
+    int i;
     SDL_Texture *pipeUp2 = loadTexture("pipe up.bmp", renderer);
     SDL_Texture *pipeDown2= loadTexture("pipe down.bmp", renderer);
     if(n[880]==2)
@@ -253,50 +218,37 @@ void pipes2()
             break;
         }
     }
-    for(i=0;i<=1300;i++)
-        {if(n[445]==1)
+    }
+        if(n[475]==1||n[400]==1||n[445]==1)
         {
-
-                for(k=0;k<=710;k++)
-                {
-                    if(k<=e||k>=e+250)
-                        m[490][k]=1;
-                }
+            if(birdy<=e||birdy+50>=e+250)
+            {
+                check=1;
+                gameover();
+            }
+            else
+                check=0;
         }
-        else
-                 for(k=0;k<=710;k++)
-                {
-                    if(k<=e||k>=e+250)
-                        m[490][k]=0;
-                }
-        }
-    for(i=-5;i<=1300;i++)
-    {
-        if(n[10]==1)
+    if(n[10]==1)
         {
             n[10]=0;
             SDL_DestroyTexture(pipeUp2);
             SDL_DestroyTexture(pipeDown2);
-            break;
         }
-        else break;
-
-    }
-}
 }
 void pipes3()
 {
-    int i,k;
-    SDL_Texture *pipeUp2 = loadTexture("pipe up.bmp", renderer);
-    SDL_Texture *pipeDown2= loadTexture("pipe down.bmp", renderer);
+    int i;
+    SDL_Texture *pipeUp3 = loadTexture("pipe up.bmp", renderer);
+    SDL_Texture *pipeDown3= loadTexture("pipe down.bmp", renderer);
     if(n[880]==1)
     {
         z=(rand()%375)+75;
         n[1300]=3;
-        renderTexture(pipeUp2, renderer, x[1300], 0, 100, z);
-        renderTexture(pipeDown2, renderer, x[1300], z+250, 100, 715-(z+250));
-        SDL_DestroyTexture(pipeUp2);
-        SDL_DestroyTexture(pipeDown2);
+        renderTexture(pipeUp3, renderer, x[1300], 0, 100, z);
+        renderTexture(pipeDown3, renderer, x[1300], z+250, 100, 715-(z+250));
+        SDL_DestroyTexture(pipeUp3);
+        SDL_DestroyTexture(pipeDown3);
 
     }
     else {
@@ -306,66 +258,53 @@ void pipes3()
         {
             n[i-15]=3;
             n[i]=0;
-            renderTexture(pipeUp2, renderer, x[i-15], 0, 100, z);
-            renderTexture(pipeDown2, renderer, x[i-15], z+250, 100, 715-(z+250));
-            SDL_DestroyTexture(pipeUp2);
-            SDL_DestroyTexture(pipeDown2);
+            renderTexture(pipeUp3, renderer, x[i-15], 0, 100, z);
+            renderTexture(pipeDown3, renderer, x[i-15], z+250, 100, 715-(z+250));
+            SDL_DestroyTexture(pipeUp3);
+            SDL_DestroyTexture(pipeDown3);
             break;
         }
-
     }
-    for(i=0;i<=1300;i++)
-        {if(n[445]==3)
+    }
+        if(n[475]==3||n[400]==3||n[445]==3)
         {
-
-                for(k=0;k<=710;k++)
-                {
-                    if(k<=z||k>=z+250)
-                        m[490][k]=3;
-                }
+            if(birdy<=z||birdy+50>=z+250)
+            {
+                check=1;
+                gameover();
+            }
+            else
+                check=0;
         }
-        else
-                 for(k=0;k<=710;k++)
-                {
-                    if(k<=z||k>=z+250)
-                        m[490][k]=0;
-                }
-        }
-    }
-    for(i=-5;i<=1300;i++)
-    {
         if(n[10]==3)
         {
             n[10]=0;
-            SDL_DestroyTexture(pipeUp2);
-            SDL_DestroyTexture(pipeDown2);
-            break;
-        }
-        else break;
+            SDL_DestroyTexture(pipeUp3);
+            SDL_DestroyTexture(pipeDown3);
 
-    }
+        }
 }
 bool gameover()
 {
-    int i,k;
     if(birdy>=660)
     {
         running =false;
     }
-    for(i=0;i<=1345;i++)
-        {
-            for( k=0;k<=710;k++)
-            {
-                if(m[490][birdy+50]!=0||m[490][birdy]!=0)
-                {
-                    running =false;
-                    //break;
-                }
-            }
-        }
-
-
+    if(check==1)
+    {
+        running =false;
+    }
 }
-
-
+void checkscore()
+{
+    if(n[370]!=0)
+    {
+        score++;
+    }
+}
+void EndGameScreen()
+{
+    cout<<"       ~GAME OVER~       "<<endl;
+    cout<<"YOUR SCORE: "<<score<<endl;
+}
 
